@@ -53,7 +53,7 @@ class RecurringProfile < ActiveRecord::Base
   end
 
   def update_recurring_invoices
-    invoices.last&.build_next_recurring_draft_if_necessary unless draft.present?
+    invoices.regular.last&.build_next_recurring_draft_if_necessary unless draft.present?
   end
 
   def handle_end_options

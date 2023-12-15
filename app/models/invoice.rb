@@ -19,6 +19,7 @@ class Invoice < ApplicationRecord
   before_save :calculate_total
 
   scope :drafts, -> { where number: nil }
+  scope :regular, -> { where.not number: nil }
 
   include Recurringable
 
