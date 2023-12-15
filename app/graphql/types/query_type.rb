@@ -4,7 +4,6 @@ module Types
     include GraphQL::Types::Relay::HasNodesField
 
     field :posts, 'Get posts', resolver: Resolvers::PostsSearch
-
-    # field :invoices, 'Get invoices', resolver: Resolvers::InvoicesSearch
+    field :invoices, 'Get invoices', resolver: Resolvers::InvoicesSearch
   end
 end
