@@ -1,0 +1,42 @@
+name: Tests
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Run backend tests
+    runs-on: ubuntu-20.04
+    env:
+      DATABASE_NAME: invoices_cz_test
+      DATABASE_PASSWORD: postgres
+      DATABASE_USER: postgres
+      RAILS_ENV: test
+
+    services:
+      postgres:
+        image: postgis/postgis:14-master
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: ${{ env.DATABASE_USER }}
+          POSTGRES_PASSWORD: ${{ env.DATABASE_PASSWORD }}
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Checkout️
+        uses: actions/checkout@v4
+
+      - name: Install ruby + gems
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Setup database
+        run: |
+          bundle exec rails db:create
+          bundler exec rails db:schema:load
+
+      - name: Run tests
+        run: bundle exec rspec spec --fail-fast

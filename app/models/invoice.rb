@@ -14,9 +14,12 @@ class Invoice < ApplicationRecord
   accepts_nested_attributes_for :buyer
   accepts_nested_attributes_for :lines, allow_destroy: true
 
-  validates :number, :issued_on, presence: true
+  validates :issued_on, presence: true
 
   before_save :calculate_total
+
+  scope :drafts, -> { where number: nil }
+  scope :regular, -> { where.not number: nil }
 
   include Recurringable
 
@@ -25,6 +28,10 @@ class Invoice < ApplicationRecord
       digits = number.scan(/\d+$/).first || ''
       number.sub(/\d+$/, '') + digits.next
     end
+  end
+
+  def draft?
+    number.blank?
   end
 
   private
