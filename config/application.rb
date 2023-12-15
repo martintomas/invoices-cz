@@ -20,5 +20,7 @@ module FoFrontend
     # config.eager_load_paths << Rails.root.join("extras")
 
     config.i18n.default_locale = :cs
+
+    config.generators.test_framework = :rspec
   end
 end
