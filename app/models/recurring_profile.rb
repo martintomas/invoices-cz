@@ -1,5 +1,6 @@
 class RecurringProfile < ActiveRecord::Base
   has_many :invoices, :foreign_key => 'recurring_profile_id'
+  has_one :draft, -> { drafts }, class_name: 'Invoice'
 
   attr_accessor :end_options
 
@@ -13,6 +14,10 @@ class RecurringProfile < ActiveRecord::Base
   after_update :update_recurring_invoices
 
   def should_build_next_one?
+    return invoices_count <= ends_after_count if end_options == 'after_count'
+    return Date.today < ends_on if end_options == 'after_date'
+
+    true
   end
 
   def end_options
@@ -23,14 +28,35 @@ class RecurringProfile < ActiveRecord::Base
   end
 
   def build_invoice(invoice)
+    new_invoice = invoices.build invoice.attributes.except 'id', 'number', 'paid_at', 'created_at', 'updated_at'
+    new_invoice.issued_on = invoice.issued_on + frequency_to_dates
+    new_invoice.due_on = invoice.due_on + frequency_to_dates
+    invoice.lines.each { |line| new_invoice.lines.build line.attributes.except 'id' }
+    new_invoice
   end
 
   protected
 
+  def frequency_to_dates
+    case frequency
+    when 'weekly'
+      1.week
+    when 'monthly'
+      1.month
+    when 'quaterly'
+      3.months
+    when 'halfyearly'
+      6.months
+    when 'yearly'
+      1.year
+    end
+  end
+
   def update_recurring_invoices
+    invoices.last&.build_next_recurring_draft_if_necessary unless draft.present?
   end
 
   def handle_end_options
+    # No idea what this should do :)
   end
-
 end
