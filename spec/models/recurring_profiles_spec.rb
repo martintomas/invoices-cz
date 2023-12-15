@@ -10,7 +10,7 @@ RSpec.describe RecurringProfile, type: :model do
     let!(:invoice) { create :invoice, recurring_profile: recurring_profile }
 
     before do
-      allow(recurring_profile).to receive(:invoices).and_return([invoice])
+      allow(recurring_profile).to receive(:invoices).and_return(OpenStruct.new(regular: [invoice]))
     end
 
     context 'when there is no draft' do
