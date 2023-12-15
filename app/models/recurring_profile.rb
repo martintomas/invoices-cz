@@ -16,6 +16,10 @@ class RecurringProfile < ActiveRecord::Base
   end
 
   def end_options
+    return 'after_count' if ends_after_count.present?
+    return 'after_date' if ends_on.present?
+
+    'never'
   end
 
   def build_invoice(invoice)
